@@ -116,6 +116,7 @@ app.use('/auth', loginRoute);
 app.use('/project', projectRoute);
 
 // -> Listening to port
-app.listen('3001', () => {
-    console.log('Running...');
+const port = process.env.PORT || 3001;
+app.listen(port, () => {
+    console.log('Running backend...');
 })
