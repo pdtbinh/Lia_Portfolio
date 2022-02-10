@@ -35,6 +35,9 @@ const experienceSchema = new Schema({
         type: String,
         required: true,
     },
+    link: {
+        type: String,
+    }
 })
 
 const joiExperienceSchema = joi.object({

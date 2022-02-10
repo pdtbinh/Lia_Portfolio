@@ -11,6 +11,10 @@ const certificateSchema = new Schema({
         type: String,
         required: true,
     },
+    type: {
+        type: String,
+        required: true,
+    },
     provider: {
         type: String,
         required: true,

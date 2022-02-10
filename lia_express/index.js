@@ -63,6 +63,7 @@ async function mongooseConnect() {
 ###################
 */
 // -> For production
+app.set('trust proxy', 1);
 app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -70,27 +71,28 @@ app.use(express.urlencoded({extended: true}));
 //app.use(bodyParser.json());
 app.use(cookieParser(secret));
 
-const store = new MongoStore({
-    mongoUrl: dbUrl,
-    secret,
-    touchAfter: 24 * 3600,
-});
-store.on('error', function(e) {
-    console.log('SESSION STORE ERROR', e);
-})
-
 app.use(expressSession(
     {
-        store,
-        resave: false, 
-        saveUninitialized: false, 
+        store: MongoStore.create({
+            mongoUrl: dbUrl,
+        }),
+        resave: true, 
+        saveUninitialized: true, 
         secret: secret,
+        cookie: {
+            httpOnly: true,
+            expires: Date.now() + 1000 * 3600 * 24 * 7,
+            maxAge: 1000 * 3600 * 24 * 7,
+            sameSite: 'none',
+            secure: true,
+        }
     })
 )
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors({
-    origin : 'http://localhost:3000', //(Whatever your frontend url is)
+    // origin : 'http://localhost:3000',
+    origin : 'https://optimistic-swartz-769ccf.netlify.app', //(Whatever your frontend url is)
     credentials: true, // allow session cookie from browser to pass through
 }))
 passport.use(new passportLocal(User.authenticate()));
@@ -107,16 +109,25 @@ app.use(morgan('tiny'))
 */
 
 // -> Users
-app.use('/', userRoute);
+app.use('/api', userRoute);
 
 // -> Login
-app.use('/auth', loginRoute);
+app.use('/api/auth', loginRoute);
 
 // -> Projects
-app.use('/project', projectRoute);
+app.use('/api/project', projectRoute);
+
+// // To make sure frontend is served
+// if (process.env.NODE_ENV === 'production') {
+//     app.use(express.static('client/build'));
+
+//     app.get('*', (req, res) => {
+//         res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+//     });
+// }
 
 // -> Listening to port
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log('Running backend...');
 })

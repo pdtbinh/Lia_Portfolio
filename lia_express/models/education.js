@@ -15,6 +15,9 @@ const educationSchema = new Schema({
         type: String,
         required: true,
     },
+    location: {
+        type: String,
+    },
     institution: {
         type: String,
         required: true,

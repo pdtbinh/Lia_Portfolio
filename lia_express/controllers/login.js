@@ -20,10 +20,12 @@ class LoginCtrl {
     // If this browser is not logged in, login to continue
     isLoggedIn(req, res, next) {
         if (!req.isAuthenticated()) {
+            console.log('LOGIN: Require');
             res.end()
             //throw new CustomError('Unauthorized', 401);
         }
         else {
+            console.log('LOGIN: Pass');
             next();
         }
     }
@@ -46,6 +48,9 @@ class LoginCtrl {
             username: username,
         })
         const registeredUser = await User.register(user, password);
+        req.login(registeredUser, err => {
+            console.log('Cannot login! ', err);
+        })
         res.json({
             user: registeredUser,
         })
@@ -53,6 +58,8 @@ class LoginCtrl {
 
     // Send authenticated user (different from just find any user)
     async sendUser(req, res, next) {
+
+        console.log('*** SESSION ***', req.session.user);
         if (req.isAuthenticated()) {
             const userID = req.user._id;
             const userIDStr = userID.toString();
