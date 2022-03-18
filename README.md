@@ -1,3 +1,3 @@
 # Liori_Portfolio
 
-Source code
+Backend source code in main branch, database design in master branch.
